@@ -1,12 +1,11 @@
-import { Controller ,Post ,Get , Delete, Put, Param,Req , Res , Body , HttpStatus} from '@nestjs/common';
+import { Controller ,Post ,Get , Delete, Put, Param,Req , Res , Body , HttpStatus, Inject, Response} from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from 'src/dto/create-student.dto';
 import { UpdateStudentDto } from 'src/dto/update-student.dto';
-
+import { response } from 'express';
 @Controller('student')
 export class StudentController {
     constructor(private readonly studentService: StudentService){}
-
     @Post()
     async createStudent(@Res() Response, @Body() createStudentDto: CreateStudentDto){
         try {
@@ -35,6 +34,16 @@ export class StudentController {
         } catch (error) {
             return Response.status(error.status).json(error.Response)
             
+        }
+    }
+    @Get('/detail/:id')
+    async getStudent(@Res() Response , @Param('id') studentId:string){
+        try{
+            const getStudentId = await this.studentService.getStudent(studentId)
+            return Response.status(HttpStatus.OK).json({getStudentId
+            })
+        }catch(error){
+            return Response.status(error.status).json(error.Response)
         }
     }
     @Put('/:id')

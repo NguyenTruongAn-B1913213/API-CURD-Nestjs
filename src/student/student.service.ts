@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { error } from 'console';
 import { promises } from 'dns';
@@ -7,9 +8,10 @@ import { NotFoundError } from 'rxjs';
 import { CreateStudentDto } from 'src/dto/create-student.dto';
 import { UpdateStudentDto } from 'src/dto/update-student.dto';
 import { IStudent } from 'src/interface/student.interface';
+import { Cache } from 'cache-manager';
 @Injectable()
 export class StudentService {
-    constructor (@InjectModel('Student') private studentModel:Model<IStudent> ){}
+    constructor (@InjectModel('Student') private studentModel:Model<IStudent>,@Inject(CACHE_MANAGER) private cacheManager: Cache ){}
 
     async createStudent(createStudentDto: CreateStudentDto ):Promise<IStudent>{
         const newStudent = await new this.studentModel(createStudentDto)
@@ -25,11 +27,16 @@ export class StudentService {
     }
 
     async  getStudent(studentId:string):Promise<IStudent> {
-        const existingStudent = await this.studentModel.findById(studentId)
+        let existingStudent: IStudent | null = await this.cacheManager.get<IStudent>('getStudent');
         if(!existingStudent){
-            throw new NotFoundException(`Student ${studentId}  not found`)
+            console.log('run API')
+            existingStudent = await this.studentModel.findById(studentId)
+            await this.cacheManager.set('getStudent', existingStudent, 5000);
+            if(!existingStudent){
+                throw new NotFoundException(`Student ${studentId}  not found`)
+            }
         }
-        return existingStudent
+        return existingStudent;
         
     }
     async  deleteStudent(studentId:string):Promise<IStudent> {
