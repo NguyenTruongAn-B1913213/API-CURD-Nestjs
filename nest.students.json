@@ -1,0 +1,22 @@
+[{
+  "_id": {
+    "$oid": "64c25e7e70f25f9495ac1dea"
+  },
+  "name": "an",
+  "roleNumber": 10,
+  "class": 12,
+  "gender": "Nam",
+  "marks": 12,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "65f2d16c62a5c1eea5400aa2"
+  },
+  "name": "binh",
+  "roleNumber": 10,
+  "class": 12,
+  "gender": "Nam",
+  "marks": 12,
+  "__v": 0
+}]

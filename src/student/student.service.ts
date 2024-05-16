@@ -19,9 +19,10 @@ export class StudentService {
     }
 
     async getAllStudent():Promise<IStudent[]>{
-        const studentData = await this.studentModel.find()
-        if(!studentData || studentData.length == 0 ){
-            throw new NotFoundException('"Student data not found')
+        let studentData: IStudent[] | null = await this.cacheManager.get<IStudent[]>('getAllStudent');
+        if(!studentData){
+            studentData = await this.studentModel.find()
+            await this.cacheManager.set('getAllStudent', studentData, 5000);
         }
         return studentData
     }

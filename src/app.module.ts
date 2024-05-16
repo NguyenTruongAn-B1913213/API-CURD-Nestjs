@@ -6,12 +6,22 @@ import {  StudentSchema } from './schemas/student.schema';
 import { StudentService } from './student/student.service';
 import { StudentController } from './student/student.controller';
 import { CacheModule } from '@nestjs/cache-manager';
-
+import { redisStore } from 'cache-manager-redis-yet';  
 @Module({
   imports: 
   [
-    CacheModule.register(),
-    MongooseModule.forRoot('mongodb://localhost:27017/nest'),
+    CacheModule.registerAsync({  
+      isGlobal: true,  
+      useFactory: async () => ({  
+        store: await redisStore({  
+          socket: {  
+            host: 'redis',  
+            port: 6379,
+          },        
+        }),      
+      }),    
+    }),    
+    MongooseModule.forRoot('mongodb://mongodb:27017/nest'),
     MongooseModule.forFeature([{name: 'Student', schema: StudentSchema}])
     
   ],
